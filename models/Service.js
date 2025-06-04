@@ -3,17 +3,17 @@ const mongoose = require('mongoose')
 const ServiceSchema = new mongoose.Schema({
     serviceName: {
         type: String,
-        required:[true, "Please provide your service"],
+        required: [true, "Please provide your service"],
         maxlength: 30
     },
     company: {
         type: String,
-        required:[true, "Please provide name of your company"],
+        required: [true, "Please provide name of your company"],
         maxlength: 30
     },
     status: {
-        type:String,
-        enum:['reserved', 'available', 'unavailable'],
+        type: String,
+        enum: ['reserved', 'available', 'unavailable'],
         default: 'available'
     },
     location: {
@@ -27,10 +27,10 @@ const ServiceSchema = new mongoose.Schema({
         default: '',
     },
     createdBy: {
-        type:mongoose.Types.ObjectId,
+        type: mongoose.Types.ObjectId,
         ref: "User",
-        required:[true, 'Please provide user']
+        required: [true, 'Please provide user']
     }
-},{timestamps:true})
+}, {timestamps: true})
 
 module.exports = mongoose.model('Service', ServiceSchema)
