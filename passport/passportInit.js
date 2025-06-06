@@ -11,14 +11,14 @@ const passportInit = () => {
                 try {
                     const user = await User.findOne({ email: email });
                     if (!user) {
-                        return done(null, false, { message: "Incorrect credentials." });
+                        return done(null, false, { message: "No such user." });
                     }
 
                     const result = await user.comparePassword(password);
                     if (result) {
                         return done(null, user);
                     } else {
-                        return done(null, false, { message: "Incorrect credentials." });
+                        return done(null, false, { message: "Wrong password." });
                     }
                 } catch (e) {
                     return done(e);

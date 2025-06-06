@@ -1,52 +1,35 @@
-const User = require("../models/User");
-const parseVErr = require("../utils/parseValidationErrs");
+const mongoose = require('mongoose')
+const bcrypt = require('bcryptjs')
 
-const registerShow = (req, res) => {
-    res.render("register");
-};
-
-const registerDo = async (req, res, next) => {
-    if (req.body.password != req.body.password1) {
-        req.flash("error", "The passwords entered do not match.");
-        return res.render("register", {  errors: flash("errors") });
+const UserSchema = new mongoose.Schema({
+    name: {
+        type:String,
+        required: [true, 'Prlease provide name'],
+        minlength:3,
+        maxlength:20
+    },
+    email: {
+        type:String,
+        required: [true, 'Please provide email'],
+        match: [/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/, 'please provide valid email'],
+        unique:true
+    },
+    password: {
+        type:String,
+        required: [true, 'Please provide password'],
+        minlength:6,
     }
-    try {
-        await User.create(req.body);
-    } catch (e) {
-        if (e.constructor.name === "ValidationError") {
-            parseVErr(e, req);
-        } else if (e.name === "MongoServerError" && e.code === 11000) {
-            req.flash("error", "That email address is already registered.");
-        } else {
-            return next(e);
-        }
-        return res.render("register", {  errors: flash("errors") });
-    }
-    res.redirect("/");
-};
+})
+UserSchema.pre('save', async function() {
+    const salt = await bcrypt.genSalt(10)
+    this.password = await bcrypt.hash(this.password, salt)
+})
 
-const logoff = (req, res) => {
-    req.session.destroy(function (err) {
-        if (err) {
-            console.log(err);
-        }
-        res.redirect("/");
-    });
-};
+UserSchema.methods.comparePassword = async function(candidatePassword) {
+    const isMatch = await bcrypt.compare(candidatePassword, this.password)
+    return isMatch;
+}
 
-const logonShow = (req, res) => {
-    if (req.user) {
-        return res.redirect("/");
-    }
-    res.render("logon", {
-        errors: req.flash("error"),
-        info: req.flash("info"),
-    });
-};
 
-module.exports = {
-    registerShow,
-    registerDo,
-    logoff,
-    logonShow,
-};
+
+module.exports = mongoose.model('User', UserSchema)
