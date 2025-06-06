@@ -9,8 +9,7 @@ const MongoDBStore = require("connect-mongodb-session")(session);
 const url = process.env.MONGO_URI;
 
 const store = new MongoDBStore({
-    uri: url,
-    collection: "mySessions",
+    uri: url, collection: "mySessions",
 });
 store.on("error", function (error) {
     console.log(error);
@@ -28,8 +27,6 @@ if (app.get("env") === "production") {
     app.set("trust proxy", 1);
     sessionParms.cookie.secure = true;
 }
-
-
 
 app.use(session(sessionParms));
 
@@ -55,7 +52,7 @@ app.get("/secretWord", (req, res) => {
     }
     res.locals.info = req.flash("info");
     res.locals.errors = req.flash("error");
-    res.render("secretWord", { secretWord: req.session.secretWord });
+    res.render("secretWord", {secretWord: req.session.secretWord});
 });
 app.post("/secretWord", (req, res) => {
     if (req.body.secretWord.toUpperCase()[0] == "P") {
@@ -82,9 +79,7 @@ const port = process.env.PORT || 3000;
 const start = async () => {
     try {
         await require("./db/connect")(process.env.MONGO_URI);
-        app.listen(port, () =>
-            console.log(`Server is listening on port ${port}...`)
-        );
+        app.listen(port, () => console.log(`Server is listening on port ${port}...`));
     } catch (error) {
         console.log(error);
     }
